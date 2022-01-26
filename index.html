@@ -198,7 +198,7 @@
                         <v-row dense>
                             <v-col> 
                                 <v-text-field label="Amount" v-model="newFood.amount"
-       outlined type="number" min="1"></v-text-field>
+       outlined type="number" min="0"></v-text-field>
                             </v-col>
                         </v-row>
                         <v-row :justify="'center'" dense>
@@ -296,7 +296,7 @@
                 }, create(food) { if (
                             food.name &&
                             Number(food.calories) >= 0 &&
-                            Number(food.amount) >= 1
+                            Number(food.amount) >= 0
                         ) {
                         
                         let foodCopy = {
