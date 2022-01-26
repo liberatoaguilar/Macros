@@ -9,7 +9,7 @@
     </head>
     <body> 
         <div id="app"> 
-            <v-dialog v-model="dialog" width="400px">
+            <v-dialog v-model="dialog" width="250px">
                 <v-card>
                     <v-container>
                         <v-row :justify="'center'">
@@ -33,9 +33,6 @@
                             </v-col>
                         </v-row>
                     </v-container>
-                    <v-card-actions color="primary" text @click="dialog = false">
-                        Done
-                    </v-card-action>
                 </v-card>
             </v-dialog>
             <v-app> 
