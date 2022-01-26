@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <title>Macros</title>
+    </head>
+    <body> 
+        <div id="app"> 
+            <v-dialog v-model="dialog" width="400px">
+                <v-card>
+                    <v-container>
+                        <v-row :justify="'center'">
+                            <v-col cols="auto">
+                                Calories: {{ this.totalCalories }}
+                            </v-col>
+                        </v-row>
+                        <v-row :justify="'center'">
+                            <v-col cols="auto">
+                                Protein: {{ this.totalProtein }}
+                            </v-col>
+                        </v-row>
+                        <v-row :justify="'center'">
+                            <v-col cols="auto">
+                                Carbs: {{ this.totalCarbs }}
+                            </v-col>
+                        </v-row>
+                        <v-row :justify="'center'">
+                            <v-col cols="auto">
+                                Fat: {{ this.totalFat }}
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                    <v-card-actions color="primary" text @click="dialog = false">
+                        Done
+                    </v-card-action>
+                </v-card>
+            </v-dialog>
+            <v-app> 
+                <v-container>
+                    <v-row :justify="'center'">
+                        <v-col cols="auto">
+                            <h1 @click="dialog = true">{{ this.totalCalories }}</h1>
+                        </v-col>
+                    </v-row>
+                    <v-row :justify="'center'">
+                        <v-col cols="auto">
+                            <add-food @createfood="create($event)"></add-food>
+                        </v-col>
+                    </v-row>
+                    <v-row :justify="'center'">
+                        <v-col cols="auto">
+                            <history @increase="increaseDay()" @decrease="decreaseDay()"
+                               @remove="removeEntry($event)"
+                            :current-date="this.currentDate" :entries="this.entries"></history>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-app>
+        </div>
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script>
+
+        Vue.component("history",{
+            props: ['entries', 'current-date'],
+            data() {
+                return {}
+            },
+            methods: {
+                formatDate(dateParam) { 
+                    return dateParam.getMonth()+1 + "/" + dateParam.getDate() + "/" + dateParam.getFullYear();
+                },
+            },
+            template: `
+                <v-container>
+                    <v-row :justify="'center'">
+                        <v-col cols="auto">
+                            <h2>History</h2>
+                        </v-col>
+                    </v-row>
+                    <v-row :justify="'center'" dense>
+                        <v-col cols="auto">
+                            <p><v-icon color="white" @click="$emit('decrease')">mdi-chevron-left</v-icon></p>
+                        </v-col>
+                        <v-col cols="auto">
+                            {{ formatDate(new Date(currentDate)) }}
+                        </v-col>
+                        <v-col cols="auto">
+                            <p><v-icon color="white" @click="$emit('increase')">mdi-chevron-right</v-icon></p>
+                        </v-col>
+                    </v-row>
+                    <v-row v-for="(entry, i) in entries" :justify="'center'" style="padding-bottom: 10px">
+                        <v-card width=500px> 
+                            <v-col>
+                                <v-container>
+                                    <v-row dense :justify="'end'" v-if="false">
+                                        <v-col cols="auto">
+                                            <v-icon color="red" @click="$emit('remove',i)">mdi-close</v-icon>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col>
+                                            <h3>{{ entry.name }}</h3> 
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col>
+                                            Calories: {{ entry.calories }}
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col>
+                                            Protein: {{ entry.protein }}
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col>
+                                            Carbs: {{ entry.carbs }}
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col>
+                                            Fat: {{ entry.fat }}
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col>
+                                            Amount: {{ entry.amount }}
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-col>
+                        </v-card> 
+                    </v-row>
+                </v-container>
+            `,
+    
+        });
+
+        Vue.component("addFood",{
+            props: ["value"],
+            data() {
+                return {
+                    newFood: {
+                        name: "",
+                        calories: "",
+                        protein: "",
+                        carbs: "",
+                        fat: "",
+                        amount: 1,
+                    },
+                }
+            },
+            methods: {
+                resetNewFood() {
+                    this.newFood = {
+                        name: "",
+                        calories: "",
+                        protein: "",
+                        carbs: "",
+                        fat: "",
+                        amount: 1,
+                    };
+                }
+            },
+            template: `
+                <v-card width=500px>
+                    <v-container>
+                        <v-row dense>
+                            <v-col>
+                                <v-text-field label="Name" v-model="newFood.name" outlined></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row dense>
+                            <v-col>
+                                <v-text-field label="Calories" v-model="newFood.calories" outlined></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row dense>
+                            <v-col>
+                                <v-text-field label="Protein" v-model="newFood.protein" outlined></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row dense>
+                            <v-col>
+                                <v-text-field label="Carbs" v-model="newFood.carbs" outlined></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row dense>
+                            <v-col> 
+                                <v-text-field label="Fat" v-model="newFood.fat" outlined></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row dense>
+                            <v-col> 
+                                <v-text-field label="Amount" v-model="newFood.amount" outlined></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row :justify="'center'" dense>
+                            <v-col cols="auto">
+                                <v-btn color="primary"
+                    @click="$emit('createfood',newFood); resetNewFood();">Add Food</v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-card>
+            `,
+        });
+
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify({
+                theme: {
+                    dark: true
+                }
+            }),
+            data() {
+                return {
+                    currentDate: new Date(),
+                    dateIndex: -1,
+                    history: [],
+                    dialog: false,
+                }
+            },
+            computed: {
+                entries() {
+                    if (this.dateIndex != -1 && this.history.length > 0) {
+                        return this.history[this.dateIndex].entries;
+                    }
+                },
+                totalCalories() {
+                    if (this.dateIndex != -1 && this.history.length > 0) {
+                        let sum = 0;
+                        for (let i = 0; i < this.history[this.dateIndex].entries.length; i++) {
+                            sum += this.history[this.dateIndex].entries[i].calories *
+                                       this.history[this.dateIndex].entries[i].amount;
+                        }
+                        return sum;
+                    }
+                },
+                totalProtein() {
+                    if (this.dateIndex != -1 && this.history.length > 0) {
+                        let sum = 0;
+                        for (let i = 0; i < this.history[this.dateIndex].entries.length; i++) {
+                            sum += this.history[this.dateIndex].entries[i].protein *
+                                       this.history[this.dateIndex].entries[i].amount;
+                        }
+                        return sum;
+                    }
+                },
+                totalCarbs() {
+                    if (this.dateIndex != -1 && this.history.length > 0) {
+                        let sum = 0;
+                        for (let i = 0; i < this.history[this.dateIndex].entries.length; i++) {
+                            sum += this.history[this.dateIndex].entries[i].carbs *
+                                       this.history[this.dateIndex].entries[i].amount;
+                        }
+                        return sum;
+                    }
+                },
+                totalFat() {
+                    if (this.dateIndex != -1 && this.history.length > 0) {
+                        let sum = 0;
+                        for (let i = 0; i < this.history[this.dateIndex].entries.length; i++) {
+                            sum += this.history[this.dateIndex].entries[i].fat *
+                                       this.history[this.dateIndex].entries[i].amount;
+                        }
+                        return sum;
+                    }
+                },
+            },
+            methods: {
+                // Slow
+                findDateIndex() {
+                    let found = false;
+                    for (let i = 0; i < this.history.length; i++) {
+                        if (this.history[i].dateObj === this.currentDate.toString()) {
+                            this.dateIndex = i;
+                            found = true;
+                            break;
+                        }
+                   } 
+                   if (!found) {
+                       this.history.push({ dateObj: this.currentDate.toString(), entries: []});
+                       this.dateIndex = this.history.length - 1;
+                   }
+                },
+                create(food) {
+                    if (
+                        food.name &&
+                        Number(food.calories) &&
+                        Number(food.protein) &&
+                        Number(food.carbs) &&
+                        Number(food.fat) &&
+                        Number(food.amount)
+                        ) {
+                        
+                        let foodCopy = {
+                            name: food.name,
+                            calories : Number(food.calories),
+                            protein : Number(food.protein),
+                            carbs : Number(food.carbs),
+                            fat : Number(food.fat),
+                            amount : Number(food.amount),
+                        };
+
+                        this.history[this.dateIndex].entries.push(foodCopy);
+                        localStorage.setItem('history',JSON.stringify(this.history));
+                    }
+                },
+                increaseDay() {
+                    this.currentDate = new Date(this.currentDate.setDate(this.currentDate.getDate()+1));
+                    this.findDateIndex();
+                },
+                decreaseDay() {
+                    this.currentDate = new Date(this.currentDate.setDate(this.currentDate.getDate()-1));
+                    this.findDateIndex();
+                },
+                removeEntry(index) {
+                    console.log(index);
+                    console.log(this.entries);
+                    this.history[this.dateIndex].entries = this.history[this.dateIndex].entries.splice(index,1);
+                    console.log(this.entries);
+                },
+            },
+            mounted() {
+                this.history = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : [];
+                this.findDateIndex();
+            }
+        });
+    </script>
+</html>
