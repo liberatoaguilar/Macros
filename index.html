@@ -87,7 +87,7 @@
                             <p><v-icon color="white" @click="$emit('decrease')">mdi-chevron-left</v-icon></p>
                         </v-col>
                         <v-col cols="auto">
-                            {{ formatDate(new Date(currentDate)) }}
+                            {{ formatDate(currentDate) }}
                         </v-col>
                         <v-col cols="auto">
                             <p><v-icon color="white" @click="$emit('increase')">mdi-chevron-right</v-icon></p>
@@ -274,23 +274,25 @@
                 },
             },
             methods: {
+                formatDate(dateParam) { 
+                    return dateParam.getMonth()+1 + "/" + dateParam.getDate() + "/" + dateParam.getFullYear();
+                },
                 // Slow
                 findDateIndex() {
                     let found = false;
                     for (let i = 0; i < this.history.length; i++) {
-                        if (this.history[i].dateObj === this.currentDate.toString()) {
+                        if (this.history[i].dateObj === this.formatDate(this.currentDate)) {
                             this.dateIndex = i;
                             found = true;
                             break;
                         }
                    } 
                    if (!found) {
-                       this.history.push({ dateObj: this.currentDate.toString(), entries: []});
+                       this.history.push({ dateObj: this.formatDate(this.currentDate), entries: []});
                        this.dateIndex = this.history.length - 1;
+                       localStorage.setItem('history',JSON.stringify(this.history));
                    }
-                },
-                create(food) {
-                    if (
+                }, create(food) { if (
                         food.name &&
                         Number(food.calories) &&
                         Number(food.protein) &&
@@ -330,7 +332,7 @@
             mounted() {
                 this.history = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : [];
                 this.findDateIndex();
-            }
+            },
         });
     </script>
 </html>
