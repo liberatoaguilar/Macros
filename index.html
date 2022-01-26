@@ -93,7 +93,8 @@
                             <p><v-icon color="white" @click="$emit('increase')">mdi-chevron-right</v-icon></p>
                         </v-col>
                     </v-row>
-                    <v-row v-for="(entry, i) in entries" :justify="'center'" style="padding-bottom: 10px">
+                    <v-row v-for="(entry, i) in entries" :justify="'center'"
+       style="padding-bottom: 10px" :key=i>
                         <v-card width=500px> 
                             <v-col>
                                 <v-container>
@@ -244,7 +245,7 @@
                             sum += this.history[this.dateIndex].entries[i].calories *
                                        this.history[this.dateIndex].entries[i].amount;
                         }
-                        return sum;
+                        return Math.round(sum*100)/100;
                     }
                 },
                 totalProtein() {
@@ -254,7 +255,7 @@
                             sum += this.history[this.dateIndex].entries[i].protein *
                                        this.history[this.dateIndex].entries[i].amount;
                         }
-                        return sum;
+                        return Math.round(sum*100)/100;
                     }
                 },
                 totalCarbs() {
@@ -264,7 +265,7 @@
                             sum += this.history[this.dateIndex].entries[i].carbs *
                                        this.history[this.dateIndex].entries[i].amount;
                         }
-                        return sum;
+                        return Math.round(sum*100)/100;
                     }
                 },
                 totalFat() {
@@ -274,7 +275,7 @@
                             sum += this.history[this.dateIndex].entries[i].fat *
                                        this.history[this.dateIndex].entries[i].amount;
                         }
-                        return sum;
+                        return Math.round(sum*100)/100;
                     }
                 },
             },
