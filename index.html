@@ -97,7 +97,7 @@
                         <v-card width=500px> 
                             <v-col>
                                 <v-container>
-                                    <v-row dense :justify="'end'" v-if="false">
+                                    <v-row dense :justify="'end'">
                                         <v-col cols="auto">
                                             <v-icon color="red" @click="$emit('remove',i)">mdi-close</v-icon>
                                         </v-col>
@@ -323,10 +323,8 @@
                     this.findDateIndex();
                 },
                 removeEntry(index) {
-                    console.log(index);
-                    console.log(this.entries);
-                    this.history[this.dateIndex].entries = this.history[this.dateIndex].entries.splice(index,1);
-                    console.log(this.entries);
+                    this.history[this.dateIndex].entries.splice(index,1);
+                    localStorage.setItem('history',JSON.stringify(this.history));
                 },
             },
             mounted() {
