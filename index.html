@@ -93,8 +93,7 @@
                     <v-row v-for="(entry, i) in entries" :justify="'center'"
        style="padding-bottom: 10px" :key=i>
                         <v-card width=500px> 
-                            <v-col>
-                                <v-container>
+                            <v-col> <v-container>
                                     <v-row dense :justify="'end'">
                                         <v-col cols="auto">
                                             <v-icon color="red" @click="$emit('remove',i)">mdi-close</v-icon>
@@ -296,7 +295,6 @@
                        localStorage.setItem('history',JSON.stringify(this.history));
                    }
                 }, create(food) { if (
-                            food.name &&
                             Number(food.calories) >= 0 &&
                             Number(food.amount) >= 0
                         ) {
