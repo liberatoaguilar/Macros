@@ -14,4 +14,4 @@ to do.
 
 Click on the calories to see a total of macros for the day.
 
-Calories, and Amount are mandatory, all other fields are optional.
+Calories, Name, and Amount are mandatory, all other fields are optional.
