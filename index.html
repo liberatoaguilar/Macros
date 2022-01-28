@@ -35,6 +35,47 @@
                     </v-container>
                 </v-card>
             </v-dialog>
+            <v-dialog v-model="dialogEdit" width="400px">
+                <v-card>
+                    <v-container>
+                        <v-row dense>
+                            <v-col>
+                                <v-text-field label="Name" v-model="editEntry.name" outlined></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row dense>
+                            <v-col>
+                                <v-text-field label="Calories" v-model="editEntry.calories"
+       outlined type="number" min="0"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row dense>
+                            <v-col>
+                                <v-text-field label="Protein" v-model="editEntry.protein"
+       outlined type="number" min="0" suffix="g"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row dense>
+                            <v-col>
+                                <v-text-field label="Carbs" v-model="editEntry.carbs"
+       outlined type="number" min="0" suffix="g"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row dense>
+                            <v-col> 
+                                <v-text-field label="Fat" v-model="editEntry.fat" outlined
+       type="number" min="0" suffix="g"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row dense>
+                            <v-col> 
+                                <v-text-field label="Servings" v-model="editEntry.amount"
+       outlined type="number" min="0"></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-card>
+           </v-dialog>
             <v-app> 
                 <v-container>
                     <v-row :justify="'center'">
@@ -50,7 +91,7 @@
                     <v-row :justify="'center'">
                         <v-col cols="auto">
                             <history @increase="increaseDay()" @decrease="decreaseDay()"
-                               @remove="removeEntry($event)" @save="save()"
+                               @remove="removeEntry($event)" @edit="editEntry($event)"
                             :current-date="this.currentDate" :entries="this.entries"></history>
                         </v-col>
                     </v-row>
@@ -66,12 +107,6 @@
             props: ['entries', 'current-date'],
             data() {
                 return {
-                    dialogEdit: false,
-                }
-            },
-            watch: {
-                dialogEdit() {
-                    this.$emit('save');
                 }
             },
             methods: {
@@ -99,53 +134,12 @@
                     </v-row>
                     <v-row v-for="(entry, i) in entries" :justify="'center'"
        style="padding-bottom: 10px" :key=i>
-                        <v-dialog v-model="dialogEdit" width="400px">
-                            <v-card>
-                                <v-container>
-                                    <v-row dense>
-                                        <v-col>
-                                            <v-text-field label="Name" v-model="entry.name" outlined></v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row dense>
-                                        <v-col>
-                                            <v-text-field label="Calories" v-model="entry.calories"
-                   outlined type="number" min="0"></v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row dense>
-                                        <v-col>
-                                            <v-text-field label="Protein" v-model="entry.protein"
-                   outlined type="number" min="0" suffix="g"></v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row dense>
-                                        <v-col>
-                                            <v-text-field label="Carbs" v-model="entry.carbs"
-                   outlined type="number" min="0" suffix="g"></v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row dense>
-                                        <v-col> 
-                                            <v-text-field label="Fat" v-model="entry.fat" outlined
-                   type="number" min="0" suffix="g"></v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row dense>
-                                        <v-col> 
-                                            <v-text-field label="Servings" v-model="entry.amount"
-                   outlined type="number" min="0"></v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                            </v-card>
-                       </v-dialog>
                         <v-card width=500px> 
                             <v-col> <v-container>
                                     <v-row dense :justify="'end'">
-                                        <v-col cols="auto" v-if="false">
+                                        <v-col cols="auto">
                                            <v-icon color="grey"
-       @click="dialogEdit=true">mdi-pencil</v-icon>
+       @click="$emit('edit',i)">mdi-pencil</v-icon>
                                         </v-col>
                                         <v-col cols="auto">
                                             <v-icon color="red" @click="$emit('remove',i)">mdi-close</v-icon>
@@ -278,6 +272,7 @@
                     dateIndex: -1,
                     history: [],
                     dialog: false,
+                    dialogEdit: false,
                 }
             },
             computed: {
@@ -377,14 +372,20 @@
                     this.history[this.dateIndex].entries.splice(index,1);
                     localStorage.setItem('history',JSON.stringify(this.history));
                 },
-                save() {
-                    localStorage.setItem('history',JSON.stringify(this.history));
+                editEntry(index) {
+                    this.editEntry = this.history[this.dateIndex].entries[index];
+                    this.dialogEdit = true;
                 }
             },
             mounted() {
                 this.history = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : [];
                 this.findDateIndex();
             },
+            watch: {
+                dialogEdit() {
+                    localStorage.setItem('history',JSON.stringify(this.history));
+                }
+            }
         });
     </script>
 </html>
