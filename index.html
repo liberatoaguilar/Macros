@@ -40,37 +40,44 @@
                     <v-container>
                         <v-row dense>
                             <v-col>
-                                <v-text-field label="Name" v-model="editEntry.name" outlined></v-text-field>
+                                <v-text-field label="Name" v-model="entryToEdit.name" outlined></v-text-field>
                             </v-col>
                         </v-row>
                         <v-row dense>
                             <v-col>
-                                <v-text-field label="Calories" v-model="editEntry.calories"
+                                <v-text-field label="Calories" v-model="entryToEdit.calories"
        outlined type="number" min="0"></v-text-field>
                             </v-col>
                         </v-row>
                         <v-row dense>
                             <v-col>
-                                <v-text-field label="Protein" v-model="editEntry.protein"
+                                <v-text-field label="Protein" v-model="entryToEdit.protein"
        outlined type="number" min="0" suffix="g"></v-text-field>
                             </v-col>
                         </v-row>
                         <v-row dense>
                             <v-col>
-                                <v-text-field label="Carbs" v-model="editEntry.carbs"
+                                <v-text-field label="Carbs" v-model="entryToEdit.carbs"
        outlined type="number" min="0" suffix="g"></v-text-field>
                             </v-col>
                         </v-row>
                         <v-row dense>
                             <v-col> 
-                                <v-text-field label="Fat" v-model="editEntry.fat" outlined
+                                <v-text-field label="Fat" v-model="entryToEdit.fat" outlined
        type="number" min="0" suffix="g"></v-text-field>
                             </v-col>
                         </v-row>
                         <v-row dense>
                             <v-col> 
-                                <v-text-field label="Servings" v-model="editEntry.amount"
+                                <v-text-field label="Servings" v-model="entryToEdit.amount"
        outlined type="number" min="0"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row dense :justify="'center'">
+                            <v-col cols="auto">
+                                <v-btn @click="dialogEdit=false" text>
+                                    Done
+                                </v-btn>
                             </v-col>
                         </v-row>
                     </v-container>
@@ -273,6 +280,7 @@
                     history: [],
                     dialog: false,
                     dialogEdit: false,
+                    entryToEdit: {},
                 }
             },
             computed: {
@@ -373,7 +381,7 @@
                     localStorage.setItem('history',JSON.stringify(this.history));
                 },
                 editEntry(index) {
-                    this.editEntry = this.history[this.dateIndex].entries[index];
+                    this.entryToEdit = this.history[this.dateIndex].entries[index];
                     this.dialogEdit = true;
                 }
             },
