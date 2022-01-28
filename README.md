@@ -1,6 +1,6 @@
 # Macros
 
-A simple macronutrient tracker written using Vue.JS.
+A simple macronutrient tracker written using Vue.JS and Vuetify.
 
 Link: https://liberatoaguilar.github.io/Macros/
 

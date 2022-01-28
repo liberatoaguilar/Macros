@@ -50,7 +50,7 @@
                     <v-row :justify="'center'">
                         <v-col cols="auto">
                             <history @increase="increaseDay()" @decrease="decreaseDay()"
-                               @remove="removeEntry($event)"
+                               @remove="removeEntry($event)" @save="save()"
                             :current-date="this.currentDate" :entries="this.entries"></history>
                         </v-col>
                     </v-row>
@@ -65,7 +65,14 @@
         Vue.component("history",{
             props: ['entries', 'current-date'],
             data() {
-                return {}
+                return {
+                    dialogEdit: false,
+                }
+            },
+            watch: {
+                dialogEdit() {
+                    this.$emit('save');
+                }
             },
             methods: {
                 formatDate(dateParam) { 
@@ -92,9 +99,54 @@
                     </v-row>
                     <v-row v-for="(entry, i) in entries" :justify="'center'"
        style="padding-bottom: 10px" :key=i>
+                        <v-dialog v-model="dialogEdit" width="400px">
+                            <v-card>
+                                <v-container>
+                                    <v-row dense>
+                                        <v-col>
+                                            <v-text-field label="Name" v-model="entry.name" outlined></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col>
+                                            <v-text-field label="Calories" v-model="entry.calories"
+                   outlined type="number" min="0"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col>
+                                            <v-text-field label="Protein" v-model="entry.protein"
+                   outlined type="number" min="0" suffix="g"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col>
+                                            <v-text-field label="Carbs" v-model="entry.carbs"
+                   outlined type="number" min="0" suffix="g"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col> 
+                                            <v-text-field label="Fat" v-model="entry.fat" outlined
+                   type="number" min="0" suffix="g"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col> 
+                                            <v-text-field label="Servings" v-model="entry.amount"
+                   outlined type="number" min="0"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-card>
+                       </v-dialog>
                         <v-card width=500px> 
                             <v-col> <v-container>
                                     <v-row dense :justify="'end'">
+                                        <v-col cols="auto">
+                                           <v-icon color="grey"
+       @click="dialogEdit=true">mdi-pencil</v-icon>
+                                        </v-col>
                                         <v-col cols="auto">
                                             <v-icon color="red" @click="$emit('remove',i)">mdi-close</v-icon>
                                         </v-col>
@@ -325,6 +377,9 @@
                     this.history[this.dateIndex].entries.splice(index,1);
                     localStorage.setItem('history',JSON.stringify(this.history));
                 },
+                save() {
+                    localStorage.setItem('history',JSON.stringify(this.history));
+                }
             },
             mounted() {
                 this.history = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : [];
