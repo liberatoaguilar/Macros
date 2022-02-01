@@ -31,6 +31,15 @@
                         -->
                         <v-row :justify="'center'">
                             <v-col cols="auto">
+                                <v-switch
+                                    v-model="compact"
+                                    label="Compact Cards"
+                                    >
+                                </v-switch>
+                            </v-col>
+                        </v-row>
+                        <v-row :justify="'center'">
+                            <v-col cols="auto">
                                 <v-textarea outlined label="Export" readonly
                                     v-model="JSON.stringify(history)"></v-textarea>
                             </v-col>
@@ -144,7 +153,8 @@
                         <v-col cols="auto">
                             <history @increase="increaseDay()" @decrease="decreaseDay()"
                                @remove="removeEntry($event)" @edit="editEntry($event)"
-                            :current-date="this.currentDate" :entries="this.entries"></history>
+                            :current-date="this.currentDate" :entries="this.entries"
+                            :compact="this.compact"></history>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -156,7 +166,7 @@
     <script>
 
         Vue.component("history",{
-            props: ['entries', 'current-date'],
+            props: ['entries', 'current-date','compact'],
             data() {
                 return {
                 }
@@ -187,19 +197,17 @@
                     <v-row v-for="(entry, i) in entries" :justify="'center'"
        style="padding-bottom: 10px" :key=i>
                         <v-card width=500px> 
-                            <v-col> <v-container>
-                                    <v-row dense :justify="'end'">
+                            <v-col> <v-container v-if="!compact">
+                                    <v-row dense :justify="'start'">
+                                        <v-col maxcols="10">
+                                            <h3>{{ entry.name }}</h3> 
+                                        </v-col>
                                         <v-col cols="auto">
                                            <v-icon color="grey"
        @click="$emit('edit',i)">mdi-pencil</v-icon>
                                         </v-col>
                                         <v-col cols="auto">
                                             <v-icon color="red" @click="$emit('remove',i)">mdi-close</v-icon>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row dense>
-                                        <v-col>
-                                            <h3>{{ entry.name }}</h3> 
                                         </v-col>
                                     </v-row>
                                     <v-row dense>
@@ -225,6 +233,27 @@
                                     <v-row dense>
                                         <v-col>
                                             Servings: {{ entry.amount }}
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                                <v-container v-else>
+                                    <v-row dense :justify="'start'">
+                                        <v-col maxcols="10">
+                                            <h3>{{ entry.name }}</h3> 
+                                        </v-col>
+                                        <v-col cols="auto">
+                                           <v-icon color="grey"
+       @click="$emit('edit',i)">mdi-pencil</v-icon>
+                                        </v-col>
+                                        <v-col cols="auto">
+                                            <v-icon color="red" @click="$emit('remove',i)">mdi-close</v-icon>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col>
+       Cals: {{ entry.calories }} / Pro: {{ entry.protein }} / Carb: {{ entry.carbs }}
+       / Fat:
+       {{ entry.fat }}  / Ser: {{ entry.amount }}
                                         </v-col>
                                     </v-row>
                                 </v-container>
@@ -327,6 +356,7 @@
                     dialogEdit: false,
                     entryToEdit: {},
                     settings: false,
+                    compact: false,
                     // goalCals: 0,
                     // goalProtein: 0,
                     // goalCarbs: 0,
@@ -437,6 +467,7 @@
                 },
                 save() {
                     localStorage.setItem('history',JSON.stringify(this.history));
+                    localStorage.setItem('compact',JSON.stringify(this.compact));
                     // localStorage.setItem('goalCals',this.goalCals);
                     // localStorage.setItem('goalProtein',this.goalProtein);
                     // localStorage.setItem('goalCarbs',this.goalCarbs);
@@ -455,6 +486,7 @@
             },
             mounted() {
                 this.history = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : [];
+                this.compact = localStorage.getItem('compact') ?  JSON.parse(localStorage.getItem('compact')) : false;
                 this.findDateIndex();
                 // this.goalCals = localStorage.getItem('goalCals') ?
                 //             localStorage.getItem('goalCals') : 0;
