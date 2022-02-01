@@ -9,12 +9,39 @@
     </head>
     <body> 
         <div id="app"> 
+            <v-dialog v-model="settings" width="300px">
+                <v-card>
+                    <v-container>
+                        <v-row :justify="'center'"> <v-col cols="auto"> <v-text-field outlined label="Goal Calories" v-model="goalCals"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row :justify="'center'">
+                            <v-col cols="auto">
+                                <v-textarea outlined label="Export" readonly
+                                    v-model="JSON.stringify(history)"></v-textarea>
+                            </v-col>
+                        </v-row>
+                        <v-row :justify="'center'">
+                            <v-col cols="auto">
+                                <v-textarea outlined label="Import"
+                                    v-model="importData"></v-textarea>
+                            </v-col>
+                        </v-row>
+                        <v-row :justify="'center'">
+                            <v-col cols="auto">
+                                <v-btn text @click="clearData">Clear Data</v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-card>
+            </v-dialog>
             <v-dialog v-model="dialog" width="250px">
                 <v-card>
                     <v-container>
                         <v-row :justify="'center'">
                             <v-col cols="auto">
-                                Calories: {{ this.totalCalories }}
+                                Calories: {{ this.totalCalories }} / {{ this.goalCals
+                                }}
                             </v-col>
                         </v-row>
                         <v-row :justify="'center'">
@@ -90,7 +117,12 @@
                             <h1 @click="dialog = true">{{ this.totalCalories }}</h1>
                         </v-col>
                     </v-row>
-                    <v-row :justify="'center'">
+                    <v-row :justify="'end'" dense style="padding-right: 10px;">
+                        <v-col cols="auto">
+                            <v-icon color="grey" @click="settings=true">mdi-cog</v-icon>
+                        </v-col>
+                    </v-row>
+                    <v-row :justify="'center'" dense>
                         <v-col cols="auto">
                             <add-food @createfood="create($event)"></add-food>
                         </v-col>
@@ -281,6 +313,9 @@
                     dialog: false,
                     dialogEdit: false,
                     entryToEdit: {},
+                    settings: false,
+                    goalCals: 0,
+                    importData: '',
                 }
             },
             computed: {
@@ -348,6 +383,7 @@
                        this.history.push({ dateObj: this.formatDate(this.currentDate), entries: []});
                        this.dateIndex = this.history.length - 1;
                        localStorage.setItem('history',JSON.stringify(this.history));
+                       this.save();
                    }
                 }, create(food) { if (
                             food.name &&
@@ -363,9 +399,8 @@
                             fat : Number(food.fat),
                             amount : Number(food.amount),
                         };
-
                         this.history[this.dateIndex].entries.push(foodCopy);
-                        localStorage.setItem('history',JSON.stringify(this.history));
+                        this.save();
                     }
                 },
                 increaseDay() {
@@ -378,21 +413,45 @@
                 },
                 removeEntry(index) {
                     this.history[this.dateIndex].entries.splice(index,1);
-                    localStorage.setItem('history',JSON.stringify(this.history));
+                    this.save();
                 },
                 editEntry(index) {
                     this.entryToEdit = this.history[this.dateIndex].entries[index];
                     this.dialogEdit = true;
-                }
+                },
+                save() {
+                    localStorage.setItem('history',JSON.stringify(this.history));
+                    localStorage.setItem('goalCals',this.goalCals);
+                },
+                clearData() {
+                    localStorage.clear();
+                    this.history = [];
+                    this.findDateIndex();
+                    this.goalCals = 0;
+                },
             },
             mounted() {
                 this.history = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : [];
+                this.goalCals = localStorage.getItem('goalCals') ?
+                            localStorage.getItem('goalCals') : 0;
                 this.findDateIndex();
             },
             watch: {
                 dialogEdit() {
-                    localStorage.setItem('history',JSON.stringify(this.history));
-                }
+                    this.save();
+                },
+                settings() {
+                    this.save();
+                },
+                importData() {
+                    if (this.importData)
+                    {
+                        this.history = JSON.parse(this.importData);
+                        this.findDateIndex();
+                        this.importData = '';
+                        this.save();
+                    }
+                },
             }
         });
     </script>
