@@ -52,7 +52,30 @@
                         </v-row>
                         <v-row :justify="'center'">
                             <v-col cols="auto">
-                                <v-btn text @click="clearData">Clear Data</v-btn>
+                                <v-dialog v-model="clearDialog" width=250px>
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-btn text color="red"
+                                            v-on="on" v-bind="attrs"
+                                            >Clear Data</v-btn>
+                                    </template>
+                                    <v-card>
+                                        <v-container>
+                                            <v-row :justify="'center'">
+                                                <v-col cols="auto">
+                                                    Are you sure?
+                                                </v-col>
+                                            </v-row>
+                                            <v-row :justify="'center'">
+                                                <v-col cols="auto">
+                                                    <v-btn text color="red"
+                                                        @click="clearDialog=false;clearData()">
+                                                        Yes
+                                                    </v-btn>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
+                                    </v-card>
+                                </v-dialog>
                             </v-col>
                         </v-row>
                     </v-container>
@@ -356,6 +379,7 @@
                     dialogEdit: false,
                     entryToEdit: {},
                     settings: false,
+                    clearDialog: false,
                     compact: false,
                     // goalCals: 0,
                     // goalProtein: 0,
