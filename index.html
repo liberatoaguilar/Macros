@@ -12,9 +12,23 @@
             <v-dialog v-model="settings" width="300px">
                 <v-card>
                     <v-container>
+                        <!--
                         <v-row :justify="'center'"> <v-col cols="auto"> <v-text-field outlined label="Goal Calories" v-model="goalCals"></v-text-field>
                             </v-col>
                         </v-row>
+                        <v-row :justify="'center'"> <v-col cols="auto"> <v-text-field
+                                    outlined label="Goal Protein" v-model="goalProtein"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row :justify="'center'"> <v-col cols="auto"> <v-text-field
+                                    outlined label="Goal Carbs" v-model="goalCarbs"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row :justify="'center'"> <v-col cols="auto"> <v-text-field
+                                    outlined label="Goal Fat" v-model="goalFat"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        -->
                         <v-row :justify="'center'">
                             <v-col cols="auto">
                                 <v-textarea outlined label="Export" readonly
@@ -40,8 +54,7 @@
                     <v-container>
                         <v-row :justify="'center'">
                             <v-col cols="auto">
-                                Calories: {{ this.totalCalories }} / {{ this.goalCals
-                                }}
+                                Calories: {{ this.totalCalories }}
                             </v-col>
                         </v-row>
                         <v-row :justify="'center'">
@@ -314,7 +327,10 @@
                     dialogEdit: false,
                     entryToEdit: {},
                     settings: false,
-                    goalCals: 0,
+                    // goalCals: 0,
+                    // goalProtein: 0,
+                    // goalCarbs: 0,
+                    // goalFat: 0,
                     importData: '',
                 }
             },
@@ -421,20 +437,33 @@
                 },
                 save() {
                     localStorage.setItem('history',JSON.stringify(this.history));
-                    localStorage.setItem('goalCals',this.goalCals);
+                    // localStorage.setItem('goalCals',this.goalCals);
+                    // localStorage.setItem('goalProtein',this.goalProtein);
+                    // localStorage.setItem('goalCarbs',this.goalCarbs);
+                    // localStorage.setItem('goalFat',this.goalFat);
                 },
                 clearData() {
                     localStorage.clear();
                     this.history = [];
                     this.findDateIndex();
-                    this.goalCals = 0;
+                    // this.findDateIndex();
+                    // this.goalCals = 0;
+                    // this.goalProtein = 0;
+                    // this.goalCarbs = 0;
+                    // this.goalFat = 0;
                 },
             },
             mounted() {
                 this.history = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : [];
-                this.goalCals = localStorage.getItem('goalCals') ?
-                            localStorage.getItem('goalCals') : 0;
                 this.findDateIndex();
+                // this.goalCals = localStorage.getItem('goalCals') ?
+                //             localStorage.getItem('goalCals') : 0;
+                // this.goalProtein = localStorage.getItem('goalProtein') ?
+                //             localStorage.getItem('goalProtein') : 0;
+                // this.goalCarbs = localStorage.getItem('goalCarbs') ?
+                //             localStorage.getItem('goalCarbs') : 0;
+                // this.goalFat = localStorage.getItem('goalFat') ?
+                //             localStorage.getItem('goalFat') : 0;
             },
             watch: {
                 dialogEdit() {
