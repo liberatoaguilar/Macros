@@ -463,11 +463,11 @@
                         
                         let foodCopy = {
                             name: food.name,
-                            calories : Number(food.calories),
-                            protein : Number(food.protein),
-                            carbs : Number(food.carbs),
-                            fat : Number(food.fat),
-                            amount : Number(food.amount),
+                            calories : Math.round(Number(food.calories)*100)/100,
+                            protein : Math.round(Number(food.protein)*100)/100,
+                            carbs : Math.round(Number(food.carbs)*100)/100,
+                            fat : Math.round(Number(food.fat)*100)/100,
+                            amount : Math.round(Number(food.amount)*100)/100,
                         };
                         this.history[this.dateIndex].entries.push(foodCopy);
                         this.save();
@@ -527,9 +527,7 @@
                 },
                 settings() {
                     this.save();
-                },
-                importData() {
-                    if (this.importData)
+                    if (this.importData && !this.settings)
                     {
                         this.history = JSON.parse(this.importData);
                         this.findDateIndex();
