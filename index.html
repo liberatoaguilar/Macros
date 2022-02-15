@@ -39,7 +39,8 @@
                             </v-col>
                         </v-row>
                         <v-row :justify="'center'">
-                            <v-col cols="auto">
+                            <v-btn text @click="exportCsv()"
+                                >Export CSV</v-btn> </v-row> <v-row :justify="'center'"> <v-col cols="auto">
                                 <v-textarea outlined label="Export" readonly
                                     v-model="JSON.stringify(history)"></v-textarea>
                             </v-col>
@@ -546,6 +547,74 @@
                     // this.goalProtein = 0;
                     // this.goalCarbs = 0;
                     // this.goalFat = 0;
+                },
+                createCsv() {
+                    let text = "Date,Calories,Protein,Carbs,Fat\n";
+                    for (let i = 0; i < this.history.length; i++)
+                    {
+                        text += this.history[i].dateObj + ',';
+                        let calories = 0;
+                        let protein = 0;
+                        let carbs = 0;
+                        let fat = 0;
+                        for (let j = 0; j < this.history[i].entries.length; j++)
+                        {
+                            calories += Number(this.history[i].entries[j].calories)*Number(this.history[i].entries[j].amount);
+                            protein += Number(this.history[i].entries[j].protein)*Number(this.history[i].entries[j].amount);
+                            carbs += Number(this.history[i].entries[j].carbs)*Number(this.history[i].entries[j].amount);
+                            fat += Number(this.history[i].entries[j].fat)*Number(this.history[i].entries[j].amount);
+                        }
+                        text += calories+','+protein+','+carbs+','+fat+'\n';
+                    }
+                    return text;
+                },
+                compareDate(date1, date2)
+                {
+                    let d1 = date1.split('/');
+                    let d2 = date2.split('/');
+                    if (Number(d1[2]) >  Number(d2[2])) return true;
+                    else if (Number(d1[2]) <  Number(d2[2])) return false;
+                    else {
+                        if (Number(d1[0]) >  Number(d2[0])) return true;
+                        else if (Number(d1[0]) <  Number(d2[0])) return false;
+                        else {
+                            if (Number(d1[1]) >  Number(d2[1])) return true;
+                            else return false;
+                        }
+                    }
+                },
+                sortCsv(text) {
+                    let listText = text.split('\n');
+                    for (let i = 1; i < listText.length; i++)
+                    {
+                        for (let j = 1; j < listText.length-1; j++)
+                        {
+                            let date1 = listText[j].split(',')[0];
+                            let date2 = listText[j+1].split(',')[0];
+                            if (this.compareDate(date1, date2))
+                            {
+                                let temp = listText[j];
+                                listText[j] = listText[j+1];
+                                listText[j+1] = temp;
+                            }
+                        }
+                    }
+                    let sortedText = "";
+                    for (let i = 0; i < listText.length; i++)
+                    {
+                        sortedText += listText[i]+'\n';
+                    }
+                    return sortedText;
+                },
+                exportCsv() {
+                    let text = this.sortCsv(this.createCsv());
+                    let element = document.createElement("a");
+                    element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(text));
+                    element.setAttribute("download", "macros.csv");
+                    element.style.display = "none";
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
                 },
             },
             mounted() {
