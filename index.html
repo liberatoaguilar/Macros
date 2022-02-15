@@ -464,10 +464,11 @@
                        localStorage.setItem('history',JSON.stringify(this.history));
                        this.save();
                    }
-                }, create(food) { if (
+                }, create(food) { 
+                        if (
                             food.name &&
                             Number(food.calories) >= 0 &&
-                            Number(food.amount) >= 0
+                            Number(food.amount) > 0
                         ) {
                         
                         let foodCopy = {
@@ -478,7 +479,26 @@
                             fat : Math.round(Number(food.fat)*100)/100,
                             amount : Math.round(Number(food.amount)*100)/100,
                         };
-                        this.history[this.dateIndex].entries.push(foodCopy);
+                        let found = false;
+                        for (let i = 0; i < this.history[this.dateIndex].entries.length; i++)
+                        {
+                            if (foodCopy.name == this.history[this.dateIndex].entries[i].name)
+                            {
+                                this.history[this.dateIndex].entries[i].calories +=
+                                       foodCopy.calories;
+                                this.history[this.dateIndex].entries[i].protein +=
+                                       foodCopy.protein;
+                                this.history[this.dateIndex].entries[i].carbs +=
+                                       foodCopy.carbs;
+                                this.history[this.dateIndex].entries[i].fat +=
+                                       foodCopy.fat;
+                                this.history[this.dateIndex].entries[i].amount +=
+                                       foodCopy.amount;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) this.history[this.dateIndex].entries.push(foodCopy);
                         this.save();
                     }
                 },
