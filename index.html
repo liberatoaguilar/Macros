@@ -176,6 +176,7 @@
                         <v-col cols="auto">
                             <history @increase="increaseDay()" @decrease="decreaseDay()"
                                @remove="removeEntry($event)" @edit="editEntry($event)"
+                               @minus="minusEntry($event)" @plus="plusEntry($event)"
                             :current-date="this.currentDate" :entries="this.entries"
                             :compact="this.compact"></history>
                         </v-col>
@@ -263,6 +264,14 @@
                                     <v-row dense :justify="'start'">
                                         <v-col maxcols="10">
                                             <h3>{{ entry.name }}</h3> 
+                                        </v-col>
+                                        <v-col cols="auto">
+                                           <v-icon color="grey"
+       @click="$emit('minus',i)">mdi-minus</v-icon>
+                                        </v-col>
+                                        <v-col cols="auto">
+                                           <v-icon color="grey"
+       @click="$emit('plus',i)">mdi-plus</v-icon>
                                         </v-col>
                                         <v-col cols="auto">
                                            <v-icon color="grey"
@@ -488,6 +497,17 @@
                 editEntry(index) {
                     this.entryToEdit = this.history[this.dateIndex].entries[index];
                     this.dialogEdit = true;
+                },
+                minusEntry(index) {
+                    if (this.history[this.dateIndex].entries[index].amount > 1)
+                    {
+                        this.history[this.dateIndex].entries[index].amount--;
+                    };
+                    this.save();
+                },
+                plusEntry(index) {
+                    this.history[this.dateIndex].entries[index].amount++;
+                    this.save();
                 },
                 save() {
                     localStorage.setItem('history',JSON.stringify(this.history));
