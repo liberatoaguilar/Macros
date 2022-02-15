@@ -559,10 +559,10 @@
                         let fat = 0;
                         for (let j = 0; j < this.history[i].entries.length; j++)
                         {
-                            calories += Number(this.history[i].entries[j].calories)*Number(this.history[i].entries[j].amount);
-                            protein += Number(this.history[i].entries[j].protein)*Number(this.history[i].entries[j].amount);
-                            carbs += Number(this.history[i].entries[j].carbs)*Number(this.history[i].entries[j].amount);
-                            fat += Number(this.history[i].entries[j].fat)*Number(this.history[i].entries[j].amount);
+                            calories += Math.round(Number(this.history[i].entries[j].calories)*Number(this.history[i].entries[j].amount)*100)/100;
+                            protein += Math.round(Number(this.history[i].entries[j].protein)*Number(this.history[i].entries[j].amount)*100)/100;
+                            carbs += Math.round(Number(this.history[i].entries[j].carbs)*Number(this.history[i].entries[j].amount)*100)/100;
+                            fat += Math.round(Number(this.history[i].entries[j].fat)*Number(this.history[i].entries[j].amount)*100)/100;
                         }
                         text += calories+','+protein+','+carbs+','+fat+'\n';
                     }
