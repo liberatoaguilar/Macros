@@ -178,6 +178,7 @@
                             <history @increase="increaseDay()" @decrease="decreaseDay()"
                                @remove="removeEntry($event)" @edit="editEntry($event)"
                                @minus="minusEntry($event)" @plus="plusEntry($event)"
+                               @set="setDay($event)"
                             :current-date="this.currentDate" :entries="this.entries"
                             :compact="this.compact"></history>
                         </v-col>
@@ -194,6 +195,8 @@
             props: ['entries', 'current-date','compact'],
             data() {
                 return {
+                    editDay: false,
+                    daySet: '',
                 }
             },
             methods: {
@@ -212,8 +215,12 @@
                         <v-col cols="auto">
                             <p><v-icon color="white" @click="$emit('decrease')">mdi-chevron-left</v-icon></p>
                         </v-col>
-                        <v-col cols="auto">
+                        <v-col cols="auto" @click="editDay = true" v-if="!editDay">
                             {{ formatDate(currentDate) }}
+                        </v-col>
+                       <v-col v-else cols="auto">
+       <input type="text" placeholder="mm/dd/yyyy" size=8 style="color: white;" autofocus
+       @keyup.enter="editDay = false; $emit('set',daySet); daySet = '';" v-model="daySet"> </input>
                         </v-col>
                         <v-col cols="auto">
                             <p><v-icon color="white" @click="$emit('increase')">mdi-chevron-right</v-icon></p>
@@ -509,6 +516,17 @@
                 },
                 decreaseDay() {
                     this.currentDate = new Date(this.currentDate.setDate(this.currentDate.getDate()-1));
+                    this.findDateIndex();
+                },
+                setDay(date)
+                {
+                    let day = Number(date.split('/')[1]);
+                    let month = Number(date.split('/')[0]);
+                    let year = Number(date.split('/')[2]);
+                    this.currentDate = new Date();
+                    this.currentDate.setDate(day);
+                    this.currentDate.setFullYear(year);
+                    this.currentDate.setMonth(month-1);
                     this.findDateIndex();
                 },
                 removeEntry(index) {
