@@ -42,7 +42,7 @@
                             <v-btn text @click="exportCsv()"
                                 >Export CSV</v-btn> </v-row> <v-row :justify="'center'"> <v-col cols="auto">
                                 <v-textarea outlined label="Export" readonly
-                                    v-model="JSON.stringify(history)"></v-textarea>
+                                     v-model="JSON.stringify({hist: history, recp: recipes})"></v-textarea>
                             </v-col>
                         </v-row>
                         <v-row :justify="'center'">
@@ -156,6 +156,89 @@
                     </v-container>
                 </v-card>
            </v-dialog>
+           <v-dialog v-model="recipe" fullscreen hide-overlay>
+                <v-card>
+                    <v-container fluid style="height: 100vh;">
+                        <v-row dense :justify="'end'">
+                            <v-col cols="auto">
+                               <v-icon color="grey" @click="addNewRecipe=true">mdi-plus</v-icon>
+                            </v-col>
+                        </v-row>
+                        <v-row v-if="!recipes.length" dense :justify="'center'">
+                            <v-col cols="auto">
+                                <v-card-text>No Recipes</v-card-text>
+                            </v-col>
+                        </v-row>
+                        <v-row v-else dense :justify="'center'"  
+                                v-for="(r,i) in recipes" :key="i">
+                            <v-list-item two-line @click="addRecipe(i); recipe=false;">
+                                <v-list-item-content>
+                                    <v-list-item-title style="padding-bottom: 5px"><h4>{{r.name}}</h4></v-list-item-title>
+                                    <v-list-item-subtitle>Cals: {{r.totalCals}} / Pro: {{r.totalPro}} / Carbs: {{r.totalCarbs}} / Fat: {{r.totalFat}}</v-list-item-subtitle>
+                                </v-list-item-content>
+                            </v-list-item>
+                        </v-row>
+                        <v-row dense :justify="'center'">
+                            <v-col cols="auto">
+                                <v-btn @click="recipe=false" text>
+                                    Done
+                                </v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-card>
+            </v-dialog>
+            <v-dialog v-model="addNewRecipe" fullscreen hide-overlay>
+                <v-card>
+                    <v-container fluid style="height: 100vh; padding-top:50px;">
+                        <v-row dense :justify="'center'">
+                            <v-col cols="auto">
+                                <v-text-field 
+                                    label="Recipe Name" 
+                                    v-model="newRecipe.name"
+                                    outlined></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row :justify="'start'">
+                            <v-list flat>
+                                <v-list-item-group multiple v-model="newRecipe.entries">
+                                    <v-list-item v-for="(entry, i) in this.entries"
+                                        :key="i" 
+                                        two-line>
+                                        <template v-slot:default="{ active }">
+                                            <v-list-item-action>
+                                                <v-checkbox :input-value="active"></v-checkbox>
+                                            </v-list-item-action>
+                                            <v-list-item-content>
+                                                <v-list-item-title style="padding-bottom: 5px"><h4>{{entry.name}}</h4></v-list-item-title>
+                                                <v-list-item-subtitle>Cals:
+                                                    {{entry.calories}} / Pro:
+                                                    {{entry.protein}} / Carbs:
+                                                {{entry.carbs}} / Fat: {{entry.fat}} /
+                                                Ser: {{entry.amount}}</v-list-item-subtitle>
+                                            </v-list-item-content>
+                                        </template>
+                                    </v-list-item>
+                                </v-list-item-group>
+                            </v-list>
+                        </v-row>
+                        <v-row :justify="'center'">
+                            <v-col cols="auto">
+                                <v-btn
+                                    @click="addNewRecipe=false;recipe=true;newRecipe.name='';" text>
+                                    Cancel
+                                </v-btn>
+                            </v-col>
+                            <v-col cols="auto">
+                                <v-btn
+                                    @click="addNewRecipe=false;recipe=true;createRecipe();" text>
+                                    Create
+                                </v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-card>
+            </v-dialog>
             <v-app> 
                 <v-container>
                     <v-row :justify="'center'">
@@ -170,7 +253,9 @@
                     </v-row>
                     <v-row :justify="'center'" dense>
                         <v-col cols="auto">
-                            <add-food @createfood="create($event)"></add-food>
+                            <add-food @createfood="create($event)" :recipe="recipe"
+                                @openrecipes="recipe = true;"
+                                ></add-food>
                         </v-col>
                     </v-row>
                     <v-row :justify="'center'">
@@ -290,7 +375,7 @@
                                         </v-col>
                                     </v-row>
                                     <v-row dense>
-                                        <v-col>
+                                        <v-col style="color: #E0E0E0">
        Cals: {{ entry.calories }} / Pro: {{ entry.protein }} / Carb: {{ entry.carbs }}
        / Fat:
        {{ entry.fat }}  / Ser: {{ entry.amount }}
@@ -372,6 +457,12 @@
                         <v-row :justify="'center'" dense>
                             <v-col cols="auto">
                                 <v-btn color="primary"
+                    @click="$emit('openrecipes')">Recipes</v-btn>
+                            </v-col>
+                            <v-col cols="2">
+                            </v-col>
+                            <v-col cols="auto">
+                                <v-btn color="primary"
                     @click="$emit('createfood',newFood); resetNewFood();">Add Food</v-btn>
                             </v-col>
                         </v-row>
@@ -398,6 +489,17 @@
                     settings: false,
                     clearDialog: false,
                     compact: false,
+                    recipe: false,
+                    addNewRecipe: false,
+                    newRecipe: {
+                        name: "",
+                        totalCals: 0,
+                        totalPro: 0,
+                        totalCarbs: 0,
+                        totalFat: 0,
+                        entries: [],
+                    },
+                    recipes: [],
                     // goalCals: 0,
                     // goalProtein: 0,
                     // goalCarbs: 0,
@@ -472,7 +574,8 @@
                        localStorage.setItem('history',JSON.stringify(this.history));
                        this.save();
                    }
-                }, create(food) { 
+                }, 
+                create(food) { 
                         if (
                             food.name &&
                             Number(food.calories) >= 0 &&
@@ -492,14 +595,6 @@
                         {
                             if (foodCopy.name == this.history[this.dateIndex].entries[i].name)
                             {
-                                this.history[this.dateIndex].entries[i].calories +=
-                                       foodCopy.calories;
-                                this.history[this.dateIndex].entries[i].protein +=
-                                       foodCopy.protein;
-                                this.history[this.dateIndex].entries[i].carbs +=
-                                       foodCopy.carbs;
-                                this.history[this.dateIndex].entries[i].fat +=
-                                       foodCopy.fat;
                                 this.history[this.dateIndex].entries[i].amount +=
                                        foodCopy.amount;
                                 found = true;
@@ -509,6 +604,47 @@
                         if (!found) this.history[this.dateIndex].entries.push(foodCopy);
                         this.save();
                     }
+                },
+                addRecipe(i) {
+                    for (let j = 0; j < this.recipes[i].entries.length; j++)
+                    {
+                        this.create(this.recipes[i].entries[j]);
+                    }
+                },
+                createRecipe() {
+                    if (this.newRecipe.name && this.newRecipe.entries.length > 0)
+                    {
+                        let newEntries = [];
+                        for (let i = 0; i < this.newRecipe.entries.length; i++)
+                        {
+                            let selectedEntry = this.entries[this.newRecipe.entries[i]];
+                            newEntries.push(selectedEntry);
+                            this.newRecipe.totalCals +=
+                                       selectedEntry.calories*selectedEntry.amount;
+                            this.newRecipe.totalPro +=
+                                       selectedEntry.protein*selectedEntry.amount;
+                            this.newRecipe.totalCarbs +=
+                                       selectedEntry.carbs*selectedEntry.amount;
+                            this.newRecipe.totalFat +=
+                                       selectedEntry.fat*selectedEntry.amount;
+                        }
+                        this.newRecipe.entries = newEntries;
+                        this.newRecipe.totalCals = Math.round(Number(this.newRecipe.totalCals)*100)/100;
+                        this.newRecipe.totalPro = Math.round(Number(this.newRecipe.totalPro)*100)/100;
+                        this.newRecipe.totalCarbs = Math.round(Number(this.newRecipe.totalCarbs)*100)/100;
+                        this.newRecipe.totalFat = Math.round(Number(this.newRecipe.totalFat)*100)/100;
+                        this.recipes.push(this.newRecipe);
+
+                        this.save();
+                    }
+                    this.newRecipe =  {
+                        name: "",
+                        totalCals: 0,
+                        totalPro: 0,
+                        totalCarbs: 0,
+                        totalFat: 0,
+                        entries: [],
+                    };
                 },
                 increaseDay() {
                     this.currentDate = new Date(this.currentDate.setDate(this.currentDate.getDate()+1));
@@ -554,6 +690,7 @@
                 save() {
                     localStorage.setItem('history',JSON.stringify(this.history));
                     localStorage.setItem('compact',JSON.stringify(this.compact));
+                    localStorage.setItem('recipes',JSON.stringify(this.recipes));
                     // localStorage.setItem('goalCals',this.goalCals);
                     // localStorage.setItem('goalProtein',this.goalProtein);
                     // localStorage.setItem('goalCarbs',this.goalCarbs);
@@ -562,6 +699,8 @@
                 clearData() {
                     localStorage.clear();
                     this.history = [];
+                    this.recipes = [];
+                    this.compact = false;
                     this.findDateIndex();
                     // this.findDateIndex();
                     // this.goalCals = 0;
@@ -641,6 +780,7 @@
             mounted() {
                 this.history = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : [];
                 this.compact = localStorage.getItem('compact') ?  JSON.parse(localStorage.getItem('compact')) : false;
+                this.recipes = localStorage.getItem('recipes') ?  JSON.parse(localStorage.getItem('recipes')) : [];
                 this.findDateIndex();
                 // this.goalCals = localStorage.getItem('goalCals') ?
                 //             localStorage.getItem('goalCals') : 0;
@@ -659,7 +799,8 @@
                     this.save();
                     if (this.importData && !this.settings)
                     {
-                        this.history = JSON.parse(this.importData);
+                        this.history = JSON.parse(this.importData).hist;
+                        this.recipes = JSON.parse(this.importData).recp;
                         this.findDateIndex();
                         this.importData = '';
                         this.save();
