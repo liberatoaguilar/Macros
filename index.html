@@ -6,9 +6,15 @@
         <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
         <title>Macros</title>
+        <style>
+        [v-cloak] {
+            display: none !important;
+        }
+        </style>
     </head>
     <body> 
         <div id="app"> 
+            <div v-cloak>
             <v-dialog v-model="settings" width="300px">
                 <v-card>
                     <v-container>
@@ -171,11 +177,24 @@
                         </v-row>
                         <v-row v-else dense :justify="'center'"  
                                 v-for="(r,i) in recipes" :key="i">
-                            <v-list-item two-line @click="addRecipe(i); recipe=false;">
+                            <v-list-item two-line 
+                                         @click="if (!editRecipeDialog) {addRecipe(i);
+                                                 recipe=false;}">
                                 <v-list-item-content>
                                     <v-list-item-title style="padding-bottom: 5px"><h4>{{r.name}}</h4></v-list-item-title>
                                     <v-list-item-subtitle>Cals: {{r.totalCals}} / Pro: {{r.totalPro}} / Carbs: {{r.totalCarbs}} / Fat: {{r.totalFat}}</v-list-item-subtitle>
                                 </v-list-item-content>
+                                <v-list-item-action>
+                                    <v-btn icon @click="removeRecipe(i)">
+                                        <v-icon color="red">mdi-close</v-icon>
+                                    </v-btn>
+                                </v-list-item-action>
+                                <v-list-item-action>
+                                    <v-btn icon
+                                        @click="editRecipeDialog=true;editRecipe(i);">
+                                        <v-icon color="grey">mdi-pencil</v-icon>
+                                    </v-btn>
+                                </v-list-item-action>
                             </v-list-item>
                         </v-row>
                         <v-row dense :justify="'center'">
@@ -239,6 +258,69 @@
                     </v-container>
                 </v-card>
             </v-dialog>
+            <v-dialog v-model="editRecipeDialog" fullscreen hide-overlay>
+                <v-card>
+                    <v-container fluid style="height: 100vh; padding-top:50px;">
+                        <v-row :justify="'center'">
+                            <v-col cols="auto">
+                                <v-text-field 
+                                    label="Recipe Name" 
+                                    v-model="recipeToEdit.name"
+                                    outlined></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row :justify="'start'">
+                            <v-list-item v-for="(entry, i) in recipeToEdit.entries"
+                                :key="i" 
+                                two-line>
+                                <v-list-item-content>
+                                    <v-list-item-title style="padding-bottom: 5px"><h4>{{entry.name}}</h4></v-list-item-title>
+                                    <v-list-item-subtitle>Cals:
+                                        {{entry.calories}} / Pro:
+                                        {{entry.protein}} / Carbs:
+                                    {{entry.carbs}} / Fat: {{entry.fat}} /
+                                    Ser: {{entry.amount}}</v-list-item-subtitle>
+                                </v-list-item-content>
+                                <v-list-item-action>
+                                    <v-btn icon @click="removeRecipeEntry(i)">
+                                        <v-icon color="red">mdi-close</v-icon>
+                                    </v-btn>
+                                </v-list-item-action>
+                            </v-list-item>
+                        </v-row>
+                        <v-row>
+                            <v-divider style="margin: 20px;"></v-divider>
+                        </v-row>
+                        <v-row :justify="'start'"> 
+                            <v-list-item v-for="(entry, i) in this.entries"
+                                :key="i" 
+                                two-line>
+                                <v-list-item-content>
+                                    <v-list-item-title style="padding-bottom: 5px"><h4>{{entry.name}}</h4></v-list-item-title>
+                                    <v-list-item-subtitle>Cals:
+                                        {{entry.calories}} / Pro:
+                                        {{entry.protein}} / Carbs:
+                                    {{entry.carbs}} / Fat: {{entry.fat}} /
+                                    Ser: {{entry.amount}}</v-list-item-subtitle>
+                                </v-list-item-content>
+                                <v-list-item-action>
+                                    <v-btn icon @click="addEntryRecipe(i)">
+                                        <v-icon color="grey">mdi-plus</v-icon>
+                                    </v-btn>
+                                </v-list-item-action>
+                            </v-list-item>
+                        </v-row>
+                        <v-row :justify="'center'">
+                            <v-col cols="auto">
+                                <v-btn
+                                    @click="editRecipeDialog=false;save();" text>
+                                    Done
+                                </v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-card>
+            </v-dialog>
             <v-app> 
                 <v-container>
                     <v-row :justify="'center'">
@@ -270,6 +352,7 @@
                     </v-row>
                 </v-container>
             </v-app>
+            </div>
         </div>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
@@ -500,6 +583,8 @@
                         entries: [],
                     },
                     recipes: [],
+                    recipeToEdit: {},
+                    editRecipeDialog: false,
                     // goalCals: 0,
                     // goalProtein: 0,
                     // goalCarbs: 0,
@@ -634,7 +719,6 @@
                         this.newRecipe.totalCarbs = Math.round(Number(this.newRecipe.totalCarbs)*100)/100;
                         this.newRecipe.totalFat = Math.round(Number(this.newRecipe.totalFat)*100)/100;
                         this.recipes.push(this.newRecipe);
-
                         this.save();
                     }
                     this.newRecipe =  {
@@ -645,6 +729,63 @@
                         totalFat: 0,
                         entries: [],
                     };
+                },
+                removeRecipe(index)
+                {
+                    this.recipes.splice(index,1);
+                    this.save();
+                },
+                removeRecipeEntry(index)
+                {
+                    this.recipeToEdit.entries.splice(index,1);
+                    this.updateRecipeTotals();
+                    this.save();
+                },
+                updateRecipeTotals()
+                {
+                    this.recipeToEdit.totalCals = 0;
+                    this.recipeToEdit.totalPro = 0;
+                    this.recipeToEdit.totalCarbs = 0;
+                    this.recipeToEdit.totalFat = 0;
+                    for (let i = 0; i < this.recipeToEdit.entries.length; i++)
+                    {
+                        let selectedEntry = this.recipeToEdit.entries[i];
+                        this.recipeToEdit.totalCals +=
+                                   selectedEntry.calories*selectedEntry.amount;
+                        this.recipeToEdit.totalPro +=
+                                   selectedEntry.protein*selectedEntry.amount;
+                        this.recipeToEdit.totalCarbs +=
+                                   selectedEntry.carbs*selectedEntry.amount;
+                        this.recipeToEdit.totalFat +=
+                                   selectedEntry.fat*selectedEntry.amount;
+                    }
+                    this.recipeToEdit.totalCals = Math.round(Number(this.recipeToEdit.totalCals)*100)/100;
+                    this.recipeToEdit.totalPro = Math.round(Number(this.recipeToEdit.totalPro)*100)/100;
+                    this.recipeToEdit.totalCarbs = Math.round(Number(this.recipeToEdit.totalCarbs)*100)/100;
+                    this.recipeToEdit.totalFat = Math.round(Number(this.recipeToEdit.totalFat)*100)/100;
+                    this.save();
+                },
+                addEntryRecipe(index)
+                {
+                    let found = false;
+                    for (let i = 0; i < this.recipeToEdit.entries.length; i++)
+                    {
+                        if (this.entries[index].name ==
+                                       this.recipeToEdit.entries[i].name)
+                            {
+                                this.recipeToEdit.entries[i].amount += 
+                                       this.entries[index].amount;
+                                found = true;
+                                break;
+                            }
+                    }
+                    if (!found) this.recipeToEdit.entries.push(this.entries[index]);
+                    this.updateRecipeTotals();
+                    this.save();
+                },
+                editRecipe(index)
+                {
+                    this.recipeToEdit = this.recipes[index];
                 },
                 increaseDay() {
                     this.currentDate = new Date(this.currentDate.setDate(this.currentDate.getDate()+1));
