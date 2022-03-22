@@ -181,20 +181,26 @@
                                          @click="if (!editRecipeDialog) {addRecipe(i);
                                                  recipe=false;}">
                                 <v-list-item-content>
-                                    <v-list-item-title style="padding-bottom: 5px"><h4>{{r.name}}</h4></v-list-item-title>
+                                    <v-list-item-title style="padding-bottom: 5px">
+                                        <v-container class="ma-0 pa-0">
+                                            <v-row>
+                                                <v-col>
+                                                    <h4>{{r.name}}</h4>
+                                                </v-col>
+                                                <v-col :justify="'end'" cols="auto">
+                                                <v-icon color="grey"
+                                                    @click="editRecipeDialog=true;editRecipe(i);">
+                                                    mdi-pencil</v-icon>
+                                                <v-icon color="red"
+                                                style="padding-left: 10px"
+                                                @click="removeRecipe(i)">
+                                                    mdi-close</v-icon>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
+                                    </v-list-item-title>
                                     <v-list-item-subtitle>Cals: {{r.totalCals}} / Pro: {{r.totalPro}} / Carbs: {{r.totalCarbs}} / Fat: {{r.totalFat}}</v-list-item-subtitle>
                                 </v-list-item-content>
-                                <v-list-item-action>
-                                    <v-btn icon @click="removeRecipe(i)">
-                                        <v-icon color="red">mdi-close</v-icon>
-                                    </v-btn>
-                                </v-list-item-action>
-                                <v-list-item-action>
-                                    <v-btn icon
-                                        @click="editRecipeDialog=true;editRecipe(i);">
-                                        <v-icon color="grey">mdi-pencil</v-icon>
-                                    </v-btn>
-                                </v-list-item-action>
                             </v-list-item>
                         </v-row>
                         <v-row dense :justify="'center'">
@@ -274,40 +280,66 @@
                                 :key="i" 
                                 two-line>
                                 <v-list-item-content>
-                                    <v-list-item-title style="padding-bottom: 5px"><h4>{{entry.name}}</h4></v-list-item-title>
+                                    <v-list-item-title style="padding-bottom: 10px">
+                                        <v-container class="ma-0 pa-0">
+                                            <v-row>
+                                                <v-col>
+                                                    <h4>{{entry.name}}</h4>
+                                                </v-col>
+                                                <v-col :justify="'end'" cols="auto">
+                                                <v-icon 
+                                                    @click="decRecipeEntry(i)"
+                                                    style="color: grey"
+                                                    >mdi-minus</v-icon>    
+                                                <v-icon 
+                                                    @click="incRecipeEntry(i)"
+                                                    style="color: grey"
+                                                    >mdi-plus</v-icon>
+                                                <v-icon color="red"
+                                                style="padding-left: 5px"
+                                                @click="removeRecipeEntry(i)">
+                                                    mdi-close</v-icon>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
+                                    </v-list-item-title>
                                     <v-list-item-subtitle>Cals:
                                         {{entry.calories}} / Pro:
                                         {{entry.protein}} / Carbs:
                                     {{entry.carbs}} / Fat: {{entry.fat}} /
                                     Ser: {{entry.amount}}</v-list-item-subtitle>
                                 </v-list-item-content>
-                                <v-list-item-action>
-                                    <v-btn icon @click="removeRecipeEntry(i)">
-                                        <v-icon color="red">mdi-close</v-icon>
-                                    </v-btn>
-                                </v-list-item-action>
                             </v-list-item>
                         </v-row>
                         <v-row>
                             <v-divider style="margin: 20px;"></v-divider>
                         </v-row>
                         <v-row :justify="'start'"> 
-                            <v-list-item v-for="(entry, i) in this.entries"
+                            <v-list-item v-for="(curr, i) in this.entries"
                                 :key="i" 
                                 two-line>
                                 <v-list-item-content>
-                                    <v-list-item-title style="padding-bottom: 5px"><h4>{{entry.name}}</h4></v-list-item-title>
+                                    <v-list-item-title style="padding-bottom: 5px">
+                                        <v-container class="ma-0 pa-0">
+                                            <v-row>
+                                                <v-col>
+                                                    <h4>{{curr.name}}</h4>
+                                                </v-col>
+                                                <v-col :justify="'end'" cols="auto">
+                                                    <v-icon color="grey"
+                                                        @click="addEntryRecipe(i)"
+                                                        >mdi-plus
+                                                    </v-icon>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
+                                    </v-list-item-title>
                                     <v-list-item-subtitle>Cals:
-                                        {{entry.calories}} / Pro:
-                                        {{entry.protein}} / Carbs:
-                                    {{entry.carbs}} / Fat: {{entry.fat}} /
-                                    Ser: {{entry.amount}}</v-list-item-subtitle>
+                                        {{curr.calories}} / Pro:
+                                        {{curr.protein}} / Carbs:
+                                    {{curr.carbs}} / Fat: {{curr.fat}} /
+                                    Ser: {{curr.amount}}</v-list-item-subtitle>
                                 </v-list-item-content>
-                                <v-list-item-action>
-                                    <v-btn icon @click="addEntryRecipe(i)">
-                                        <v-icon color="grey">mdi-plus</v-icon>
-                                    </v-btn>
-                                </v-list-item-action>
                             </v-list-item>
                         </v-row>
                         <v-row :justify="'center'">
@@ -741,6 +773,19 @@
                     this.updateRecipeTotals();
                     this.save();
                 },
+                incRecipeEntry(i)
+                {
+                    this.recipeToEdit.entries[i].amount += 1;
+                    this.updateRecipeTotals();
+                    this.save();
+                },
+                decRecipeEntry(i)
+                {
+                    if (this.recipeToEdit.entries[i].amount > 1)
+                        this.recipeToEdit.entries[i].amount -= 1;
+                    this.updateRecipeTotals();
+                    this.save();
+                },
                 updateRecipeTotals()
                 {
                     this.recipeToEdit.totalCals = 0;
@@ -779,7 +824,8 @@
                                 break;
                             }
                     }
-                    if (!found) this.recipeToEdit.entries.push(this.entries[index]);
+                    let copyFood = JSON.parse(JSON.stringify(this.entries[index]));
+                    if (!found) this.recipeToEdit.entries.push(copyFood);
                     this.updateRecipeTotals();
                     this.save();
                 },
